@@ -78,3 +78,14 @@ This new bricks works well with a continuous integration. Orchestration is :
 4. enjoy reports 
 
 Previous orchestration has been tested with jenkins and works well.
+
+## ScreenShots Analyzing Bonitasoft projects with SonarQube
+
+![alt text](images/sonar-accueil.png "SonarQube accueil")
+
+![alt text](images/sonar-project.png "Project BonitaSoft")
+
+![alt text](images/sonar-code.png "Inside code project")
+
+![alt text](images/sonar-statistique.png "Project BonitaSoft statistique")
+
