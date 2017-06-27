@@ -1,0 +1,12 @@
+var module;
+try {
+  module = angular.module('bonitasoft.ui.fragments');
+} catch (e) {
+  module = angular.module('bonitasoft.ui.fragments', []);
+  angular.module('bonitasoft.ui').requires.push('bonitasoft.ui.fragments');
+}
+module.directive('pbFragmentMonFragment', function() {
+  return {
+    template: '<div>    <div class="row">\n        <div pb-property-values=\'a0d013b1-4056-480f-8b81-20d610fbfd28\'>\n    <div ng-if="!properties.hidden" class="component col-xs-12  col-md-12  col-lg-12" ng-class="properties.cssClasses">\n        <pb-title></pb-title>\n    </div>\n</div>\n    </div>\n    <div class="row">\n        <div pb-property-values=\'0ceeaa9b-131b-401d-a5b0-611a82b547ed\'>\n    <div ng-if="!properties.hidden" class="component col-xs-12  col-md-12  col-lg-12" ng-class="properties.cssClasses">\n        <pb-text></pb-text>\n    </div>\n</div>\n    </div>\n    <div class="row">\n        <div pb-property-values=\'d66536ce-fade-4cc4-be0e-5152e440f566\'>\n    <div ng-if="!properties.hidden" class="component col-xs-12  col-md-12  col-lg-12" ng-class="properties.cssClasses">\n        <pb-title></pb-title>\n    </div>\n</div>\n    </div>\n    <div class="row">\n        <div pb-property-values=\'f6ca67f4-dbb7-4afa-9537-7b2e4d2a1a8c\'>\n    <div ng-if="!properties.hidden" class="component col-xs-4  col-md-4  col-lg-4" ng-class="properties.cssClasses">\n        <pb-input></pb-input>\n    </div>\n</div><div pb-property-values=\'affa0f64-f59a-493d-af53-53d0a4b40111\'>\n    <div ng-if="!properties.hidden" class="component col-xs-4  col-md-4  col-lg-4" ng-class="properties.cssClasses">\n        <pb-date-picker></pb-date-picker>\n    </div>\n</div><div pb-property-values=\'d36d96b0-7202-41c2-8c80-bb7e8496fa99\'>\n    <div ng-if="!properties.hidden" class="component col-xs-4  col-md-4  col-lg-4" ng-class="properties.cssClasses">\n        <pb-date-picker></pb-date-picker>\n    </div>\n</div>\n    </div>\n    <div class="row">\n        <div pb-property-values=\'9f9ed2b7-facc-45b4-a625-cf8ed476c8fd\'>\n    <div ng-if="!properties.hidden" class="component col-xs-12  col-md-12  col-lg-12" ng-class="properties.cssClasses">\n        <pb-radio-buttons></pb-radio-buttons>\n    </div>\n</div>\n    </div>\n    <div class="row">\n        <div pb-property-values=\'201042cc-3a9f-4d7f-838c-7e5ac8fda2e3\'>\n    <div ng-if="!properties.hidden" class="component col-xs-12  col-md-12  col-lg-12" ng-class="properties.cssClasses">\n        <pb-button></pb-button>\n    </div>\n</div>\n    </div>\n</div>'
+  };
+});
