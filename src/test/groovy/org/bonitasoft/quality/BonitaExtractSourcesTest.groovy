@@ -25,6 +25,7 @@ package org.bonitasoft.quality
 
 import spock.lang.Specification
 
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -40,7 +41,7 @@ class BonitaExtractSourcesTest extends Specification {
     }
 
     private static String getResourcePath(String relativePath) {
-        return BonitaExtractSourcesTest.class.getClassLoader().getResource(relativePath).getPath().replaceFirst("/", "");
+        return BonitaExtractSourcesTest.class.getClassLoader().getResource(relativePath).getPath().replaceFirst("/", "")
     }
 
     def testExtract() {
@@ -67,7 +68,7 @@ class BonitaExtractSourcesTest extends Specification {
         filesScriptPath.resolve("isRequestStatusApproved.groovy").toFile().exists()
         List<String> filesScript = filesScriptPath.toFile().list()
         filesScript.size() == 7
-        List<String> fileScript = Files.readAllLines(filesScriptPath.resolve("isRequestStatusApproved.groovy"))
+        List<String> fileScript = Files.readAllLines(filesScriptPath.resolve("isRequestStatusApproved.groovy"), Charset.defaultCharset())
         fileScript[0] == "return vacationRequestToCancel.status == \"approved\""
     }
 
@@ -82,7 +83,7 @@ class BonitaExtractSourcesTest extends Specification {
         widgetHtmlDir.size() == 2
         widgetHtmlDir.contains("pbDataTable.html")
         widgetHtmlDir.contains("pbChecklist.html")
-        List<String> fileScript = Files.readAllLines(widgetsHtmlDir.resolve("pbChecklist.html"))
+        List<String> fileScript = Files.readAllLines(widgetsHtmlDir.resolve("pbChecklist.html"), Charset.defaultCharset())
         fileScript[0] == """<div class="row form-group" ng-class="{ 'form-horizontal':  !properties.labelHidden && properties.labelPosition === 'left' }">"""
     }
 
@@ -95,10 +96,13 @@ class BonitaExtractSourcesTest extends Specification {
         dir.toFile().exists()
         List<String> widgetHtmlDir = dir.toFile().list()
         widgetHtmlDir.size() == 2
-        widgetHtmlDir.contains("0096d371-549a-4210-a02c-2f915198a374.js")
-        widgetHtmlDir.contains("115e20c0-3948-4130-8d17-5a9a8c10784b.js")
-        List<String> fileScript = Files.readAllLines(dir.resolve("115e20c0-3948-4130-8d17-5a9a8c10784b.js"))
-        fileScript[3] == """  \$data.copySelectedRow = function (\$data){"""
+        widgetHtmlDir.contains("form_intiateVacationAvailable.js")
+        widgetHtmlDir.contains("page_ExampleVacationManagement.js")
+        List<String> fileScript = Files.readAllLines(dir.resolve("page_ExampleVacationManagement.js"), Charset.defaultCharset())
+        fileScript[0] == """// name : ExampleVacationManagement, type : page, id : 115e20c0-3948-4130-8d17-5a9a8c10784b, inactiveAssets : [], designerVersion : 1.2.9, lastUpdate : 1457529523686"""
+        fileScript[4] == """  \$data.copySelectedRow = function (\$data){"""
+        containsIn(fileScript, "115e20c0-3948-4130-8d17-5a9a8c10784b")
+
     }
 
     def testExtractJavascripFragments() {
@@ -110,12 +114,23 @@ class BonitaExtractSourcesTest extends Specification {
         dir.toFile().exists()
         List<String> widgetHtmlDir = dir.toFile().list()
         widgetHtmlDir.size() == 1
-        widgetHtmlDir.contains("4c75e7bc-40e1-43d6-ac27-5e89a71aa8d8.js")
-        List<String> fileScript = Files.readAllLines(dir.resolve("4c75e7bc-40e1-43d6-ac27-5e89a71aa8d8.js"))
-        fileScript[3] == """  \$data.formInput = { "cancellationApprovedContract" : false } ;"""
+        widgetHtmlDir.contains("fragment_monFragment.js")
+        List<String> fileScript = Files.readAllLines(dir.resolve("fragment_monFragment.js"), Charset.defaultCharset())
+        fileScript[0] == """// name : monFragment, type : fragment, id : 4c75e7bc-40e1-43d6-ac27-5e89a71aa8d8, inactiveAssets : [], designerVersion : 1.2.18, lastUpdate : 1498524538979"""
+        fileScript[4] == """  \$data.formInput = { "cancellationApprovedContract" : false } ;"""
+        containsIn(fileScript, "4c75e7bc-40e1-43d6-ac27-5e89a71aa8d8")
     }
 
-    def testCleanVersion(){
+    private static boolean containsIn(List<String> list, String value) {
+        for (String elt : list) {
+            if (elt.contains(value)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    def testCleanVersion() {
         when:
         String name = "Example-CancelVacationRequest-1.2.0"
         String nameSnapShot = "Example-CancelVacationRequest-1.2.0-SNAPSHOT"

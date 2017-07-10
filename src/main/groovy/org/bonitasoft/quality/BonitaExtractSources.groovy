@@ -61,9 +61,9 @@ class BonitaExtractSources {
         this.printStream = printStream
     }
 
-    static void main(String[] args){
-        if (args && args.size() == 1){
-            if (Paths.get(args[0]).toFile().exists()){
+    static void main(String[] args) {
+        if (args && args.size() == 1) {
+            if (Paths.get(args[0]).toFile().exists()) {
                 new BonitaExtractSources(System.out).extract(args[0])
             } else {
                 println("Workspace path is not valide")
@@ -179,35 +179,36 @@ class BonitaExtractSources {
 
     /** Extract javascript from web page */
     protected void extractJavascriptFromWebPage(Path workspace) {
-        Path dirWebPage = workspace.resolve(DIR_WEB_PAGE)
-        Path dirOutput = workspace.resolve(DIR_EXTRACTED_WEB_PAGE)
-
-
-        Map<String, String> contents = [:]
-        dirWebPage.traverse(type: FileType.FILES, nameFilter: ~/.*\.json/) {
-            Path it ->
-                if (it.parent.parent.endsWith(DIR_WEB_PAGE)) {
-                    String name = getName(contents, it.toFile().getName().replace(".json", ""))
-                    contents.put(name, generateJavascriptFromUIDesignerJson(new JsonSlurper().parse(it.toFile())))
-                }
-        }
-        saveContents("sources from web pages", contents, dirOutput, ".js")
+        extractJavascriptFromJson(workspace, DIR_WEB_PAGE, DIR_EXTRACTED_WEB_PAGE)
     }
 
     /** Extract javascript from fragment */
     protected void extractJavascriptFromFragment(Path workspace) {
-        Path dir = workspace.resolve(DIR_WEB_FRAGMENTS)
-        Path dirOutput = workspace.resolve(DIR_EXTRACTED_WEB_FRAGMENTS)
+        extractJavascriptFromJson(workspace, DIR_WEB_FRAGMENTS, DIR_EXTRACTED_WEB_FRAGMENTS)
+    }
+
+    private void extractJavascriptFromJson(Path workspace, String dirToAnalyse, String extractedDir) {
+        Path dir = workspace.resolve(dirToAnalyse)
+        Path dirOutput = workspace.resolve(extractedDir)
 
         Map<String, String> contents = [:]
         dir.traverse(type: FileType.FILES, nameFilter: ~/.*\.json/) {
             Path it ->
-                if (it.parent.parent.endsWith(DIR_WEB_FRAGMENTS)) {
-                    String name = getName(contents, it.toFile().getName().replace(".json", ""))
-                    contents.put(name, generateJavascriptFromUIDesignerJson(new JsonSlurper().parse(it.toFile())))
+                if (it.parent.parent.endsWith(dirToAnalyse)) {
+                    def json = new JsonSlurper().parse(it.toFile())
+                    String name = getJavascriptFromJsonFileName(contents, it.toFile().getName().replace(".json", ""), json)
+                    contents.put(name, generateJavascriptFromUIDesignerJson(json))
                 }
         }
-        saveContents("sources from fragments", contents, dirOutput, ".js")
+        saveContents("sources from " + dirToAnalyse, contents, dirOutput, ".js")
+    }
+
+    /** if bonita json contains a type and a name  : use it as file */
+    private static String getJavascriptFromJsonFileName(Map contents, String fileName, def json) {
+        if (json.type && json.name) {
+            return getName(contents, (String) json.type + "_" + (String) json.name)
+        }
+        return getName(contents, fileName)
     }
 
     /** Generate javascript from json bonita */
@@ -224,7 +225,17 @@ class BonitaExtractSources {
                     content += generateJavascriptFromTypeExpression(name, exposed, type, value)
                 }
         }
-        return  "function myFunction(" + getDataParameter(content) + ") {" + content + "\n}"
+        return getBonitaJavascriptDescription(json) + "\nfunction myFunction(" + getDataParameter(content) + ") {" + content + "\n}"
+    }
+
+    private static String getBonitaJavascriptDescription(def json) {
+        String type = json.type
+        String name = json.name
+        String id = json.id
+        String inactiveAssets = json.inactiveAssets
+        String designerVersion = json.designerVersion
+        String lastUpdate = json.lastUpdate
+        return """// name : $name, type : $type, id : $id, inactiveAssets : $inactiveAssets, designerVersion : $designerVersion, lastUpdate : $lastUpdate"""
     }
 
     /** Generate javascript from expression data*/
@@ -234,7 +245,7 @@ class BonitaExtractSources {
     }
 
     /** $data parameter is only necessary only if it used */
-    private static String getDataParameter(String content){
+    private static String getDataParameter(String content) {
         return content.contains("\$data") ? "\$data" : ""
     }
 
